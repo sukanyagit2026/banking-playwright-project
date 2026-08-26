@@ -1,3 +1,4 @@
+import os
 import pytest
 from faker import Faker
 from pages.login_page import LoginPage, RegisterPage
@@ -14,6 +15,24 @@ fake = Faker()
 # customer per test avoids any race conditions or shared-state flakiness.
 DEMO_USERNAME = "john"
 DEMO_PASSWORD = "demo"
+
+
+@pytest.fixture(autouse=True)
+def increase_timeout_in_ci(page):
+    """
+    We confirmed via direct comparison that a cluster of tests
+    (Transfer Funds, Update Contact Info, Visual Regression) fail with
+    element timeouts consistently in GitHub Actions CI, while passing
+    instantly and reliably when run locally against the exact same
+    live ParaBank server. This points to CI's network path to
+    ParaBank's small public demo server being slower/less reliable
+    than a typical home connection - not a bug in the test logic
+    itself. Rather than guess at the exact network cause, we give
+    every action more patience specifically in CI, where
+    Playwright's default is 30 seconds.
+    """
+    if os.environ.get("CI"):
+        page.set_default_timeout(60000)
 
 
 @pytest.fixture
