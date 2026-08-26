@@ -1,0 +1,72 @@
+name: ParaBank Playwright Test Suite
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    timeout-minutes: 60
+    runs-on: ubuntu-latest
+
+    # max-parallel: 1 runs browsers one at a time rather than
+    # simultaneously - a lesson learned the hard way on a previous
+    # project, where 3 concurrent CI runners hammering a small public
+    # demo site at once caused widespread timeouts unrelated to the
+    # actual test logic.
+    strategy:
+      fail-fast: false
+      max-parallel: 1
+      matrix:
+        browser: [chromium, firefox, webkit]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Install Playwright Browsers
+        run: playwright install --with-deps
+
+      - name: Run UI tests on ${{ matrix.browser }}
+        run: pytest -v -m ui --browser ${{ matrix.browser }} --html=report-${{ matrix.browser }}.html --self-contained-html
+
+      # API tests don't use a browser at all, so only run them once
+      - name: Run API tests (chromium leg only)
+        if: matrix.browser == 'chromium'
+        run: pytest -v -m api --html=report-api.html --self-contained-html
+
+      - name: Upload HTML report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-report-${{ matrix.browser }}
+          path: report-*.html
+          retention-days: 30
+
+      - name: Upload visual snapshot baselines
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: visual-snapshots-${{ matrix.browser }}
+          path: tests/snapshots/
+          retention-days: 30
+
+      - name: Upload failure screenshots, videos, and visual diffs
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: failure-traces-${{ matrix.browser }}
+          path: |
+            test-results/
+            tests/snapshot_tests_failures/
+          retention-days: 30

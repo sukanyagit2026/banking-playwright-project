@@ -1,0 +1,9 @@
+__pycache__/
+*.pyc
+.venv/
+venv/
+report.html
+report-*.html
+test-results/
+.pytest_cache/
+snapshot_tests_failures/
