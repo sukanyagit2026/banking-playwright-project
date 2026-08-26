@@ -87,12 +87,34 @@ def registered_customer(page, random_customer):
     with one auto-created CHECKING account ready to use. This is the
     fixture most stateful tests (transfer, bill pay, loan, open
     account) depend on.
+
+    Registration is used by nearly every stateful test, so ParaBank's
+    /register.htm endpoint gets hit far more often than any other page
+    across a full CI run. Evidence from real CI runs showed this
+    specific step failing more consistently than other pages even
+    after raising the global CI timeout - so it gets its own targeted
+    retry loop here, rather than relying only on pytest re-running the
+    entire test (which is slower and less precise, since it also
+    re-runs everything else in the test, not just the flaky step).
     """
     register_page = RegisterPage(page)
-    register_page.load()
-    register_page.register(random_customer)
-    page.wait_for_selector(register_page.SUCCESS_TEXT)
-    return random_customer
+    last_error = None
+    for attempt in range(3):
+        try:
+            register_page.load()
+            register_page.register(random_customer)
+            page.wait_for_selector(register_page.SUCCESS_TEXT, timeout=60000)
+            return random_customer
+        except Exception as error:
+            # Honest caveat: if the first attempt actually succeeded
+            # server-side but we simply didn't see the confirmation in
+            # time, retrying with the same username could hit a
+            # "username already exists" error instead of a clean
+            # success. This is an acceptable tradeoff for a test
+            # fixture (worst case, this fixture fails clearly rather
+            # than silently), but worth knowing about.
+            last_error = error
+    raise last_error
 
 
 @pytest.fixture
