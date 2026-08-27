@@ -1,4 +1,5 @@
-# ParaBank - Full Banking Test Automation Framework (Playwright + Python)
+[![ParaBank Playwright Test Suite](https://github.com/sukanyagit2026/banking-playwright-project/actions/workflows/playwright.yml/badge.svg)](https://github.com/sukanyagit2026/banking-playwright-project/actions/workflows/playwright.yml)
+# ParaBank - Full Banking Test Automation Framework (Playwright + Python)   
 
 A comprehensive Playwright + pytest project testing [ParaBank](https://parabank.parasoft.com/parabank/index.htm) - a real banking demo application built by Parasoft specifically for test automation practice (it is explicitly *not* a real bank, and is designed to be hammered by automated tests from all over the world).
 
