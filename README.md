@@ -6,7 +6,12 @@ A comprehensive Playwright + pytest project testing [ParaBank](https://parabank.
 ## Why ParaBank instead of an e-commerce site
 
 If you've already built the `big-playwright-project` (automationexercise.com), this project is its banking-domain companion. ParaBank gives you real banking modules that a shopping site simply can't: account balances, fund transfers, bill payments, loan approval logic, and a proper REST API - all designed for exactly this kind of practice.
-
+## Key Skills Demonstrated
+- Page Object Model architecture
+- Data-driven testing with pytest fixtures
+- REST API testing alongside UI automation
+- Visual regression testing
+- CI/CD with GitHub Actions across 3 browsers
 ## Project structure
 
 ```
