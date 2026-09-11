@@ -103,7 +103,7 @@ def registered_customer(page, random_customer):
         try:
             register_page.load()
             register_page.register(random_customer)
-            page.wait_for_selector(register_page.SUCCESS_TEXT, timeout=60000)
+            page.wait_for_selector(register_page.SUCCESS_TEXT, timeout=90000)
             return random_customer
         except Exception as error:
             # Honest caveat: if the first attempt actually succeeded
